@@ -1,32 +1,28 @@
-name: MTA Alerts to Discord
+name: MTA Alerts Monitor
 
-# 触发器配置
 on:
   schedule:
-    # 每 10 分钟运行一次。MTA 服务通告通常不需要秒级延迟。
-    - cron: '*/10 * * * *'
-  workflow_dispatch: # 允许你在 GitHub 网页端点击按钮手动测试运行
+    - cron: '*/15 * * * *'  # 每 15 分钟运行一次
+  workflow_dispatch:        # 支持手动点击运行
 
 jobs:
-  run-bot:
+  check-alerts:
     runs-on: ubuntu-latest
-    # 赋予工作流写入权限，以便能把状态文件(seen_alerts.json)提交回仓库
     permissions:
-      contents: write 
-      
+      contents: write # 保障写入 seen_alerts.json 的权限
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip' # 核心优化：缓存 pip 依赖包，大幅加快 Actions 运行速度
 
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Fetch Alerts and Notify Discord
         env:
