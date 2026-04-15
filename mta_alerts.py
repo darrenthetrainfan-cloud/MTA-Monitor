@@ -10,70 +10,96 @@ WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK")
 STATE_FILE = "seen_alerts.json"
 
 def main():
-    # 1. 加载本地状态
-    seen_alerts = set()
+    # 1. 加载本地状态（已发送的警报 ID），防止每次运行都重复发送
     if os.path.exists(STATE_FILE):
-        try:
-            with open(STATE_FILE, 'r', encoding='utf-8') as f:
-                content = f.read().strip()
-                if content:
-                    seen_alerts = set(json.load(f))
-        except (json.JSONDecodeError, Exception) as e:
-            print(f"读取状态文件失败: {e}，将重新创建。")
+        with open(STATE_FILE, 'r', encoding='utf-8') as f:
+            try:
+                seen_alerts = set(json.load(f))
+            except json.JSONDecodeError:
+                seen_alerts = set()
+    else:
+        seen_alerts = set()
 
-    # 2. 获取 MTA 数据
+    # 2. 获取 MTA GTFS-Realtime 数据
     feed = gtfs_realtime_pb2.FeedMessage()
     try:
-        response = requests.get(FEED_URL, timeout=20)
+        response = requests.get(FEED_URL, timeout=15)
         response.raise_for_status()
         feed.ParseFromString(response.content)
     except Exception as e:
-        print(f"获取 MTA 数据失败: {e}")
+        print(f"获取或解析 MTA 数据失败: {e}")
         return
 
-    current_all_ids = set()
-    to_send = []
+    current_alerts = set()
+    new_alerts_sent = 0
 
-    # 3. 预筛选新警报
+    # 3. 遍历实体，解析警报并发送
     for entity in feed.entity:
         if entity.HasField('alert'):
-            alert_id = str(entity.id)
-            current_all_ids.add(alert_id)
+            alert_id = entity.id
+            current_alerts.add(alert_id)
+
+            # 如果这是一个新警报
             if alert_id not in seen_alerts:
-                to_send.append(entity)
+                send_to_discord(entity.alert, alert_id)
+                seen_alerts.add(alert_id)
+                new_alerts_sent += 1
+                # 暂停 1 秒，防止短时间内发送过多请求导致 Discord 封禁 Webhook (Rate Limit)
+                time.sleep(1) 
 
-    print(f"当前活跃警报总数: {len(current_all_ids)}，待处理新警报: {len(to_send)}")
+    # 4. 更新状态文件
+    # 取 "已处理过的" 和 "当前活跃的" 警报的交集
+    # 这样当 MTA 撤销某个警报时，它也会从我们的记录中移除；防止文件无限变大。
+    active_seen_alerts = seen_alerts.intersection(current_alerts)
 
-    # 4. 执行发送逻辑（带防刷屏保护）
-    if len(to_send) > 15:
-        print("检测到大量新警报，可能是首次运行或数据重置。执行静默模式，仅更新索引。")
-        for entity in to_send:
-            seen_alerts.add(str(entity.id))
-    else:
-        for entity in to_send:
-            alert_id = str(entity.id)
-            send_to_discord(entity.alert, alert_id)
-            seen_alerts.add(alert_id)
-            time.sleep(1.5)  # 严格限制速度，保护 Discord Webhook
-
-    # 5. 清理过期的 Alert ID (只保留当前还在活跃的 ID，防止 JSON 文件无限变大)
-    updated_seen = seen_alerts.intersection(current_all_ids)
-
-    # 6. 写回文件
     with open(STATE_FILE, 'w', encoding='utf-8') as f:
-        json.dump(list(updated_seen), f)
+        json.dump(list(active_seen_alerts), f)
     
-    print("状态已保存。")
+    print(f"运行完毕。发现 {len(current_alerts)} 个当前警报，推送了 {new_alerts_sent} 个新警报。")
 
 def send_to_discord(alert, alert_id):
+    """格式化警报并发送至 Discord Webhook"""
+    
+    # 提取标题
     header = "MTA Service Alert"
     if alert.header_text.translation:
+         # 通常第一项是英语
         header = alert.header_text.translation[0].text
     
-    desc = "No details provided."
+    # 提取详细描述
+    desc = "No description available."
     if alert.description_text.translation:
         desc = alert.description_text.translation[0].text
-        if len(desc) > 1000: # 缩短长度，避免消息过长
-            desc = desc[:1000] + "..."
+        # Discord Embed 描述上限为 4096 字符，进行安全截断
+        if len(desc) > 4000:
+            desc = desc[:4000] + "...\n*[Text truncated]*"
 
-    affected_lines
+    # 提取受影响的线路
+    affected_lines = set()
+    for entity in alert.informed_entity:
+        if entity.route_id:
+            affected_lines.add(entity.route_id)
+    
+    lines_str = ", ".join(affected_lines) if affected_lines else "System-wide / Unknown"
+
+    # 构建 Discord Embed 格式的 JSON 载荷
+    embed = {
+        "title": header[:256],
+        "description": desc,
+        "color": 16711680, # 红色，代表警报
+        "fields": [
+            {"name": "Affected Lines", "value": lines_str, "inline": False},
+        ],
+        "footer": {"text": f"Alert ID: {alert_id} • MTA API"}
+    }
+
+    try:
+        requests.post(WEBHOOK_URL, json={"embeds": [embed]})
+    except Exception as e:
+        print(f"发送 Webhook 失败 [{alert_id}]: {e}")
+
+if __name__ == "__main__":
+    if not WEBHOOK_URL:
+        print("错误: 未检测到 DISCORD_WEBHOOK 环境变量。")
+    else:
+        main()
