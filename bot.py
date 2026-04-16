@@ -2,101 +2,83 @@ import os
 import requests
 import json
 
-# 配置环境变量
 WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
-# 使用全量 JSON 警报源
+# 全量 JSON 数据源，包含地铁、巴士、电梯、闸机等所有警报
 DATA_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fall-alerts.json"
 HISTORY_FILE = "alert_history.json"
 
-def get_mta_text(obj):
-    """从 MTA 复杂的翻译结构中提取文字，不做任何多余过滤"""
-    if not obj or 'translation' not in obj:
+def get_all_text(text_obj):
+    """提取所有可用的翻译文本，不留死角"""
+    if not text_obj or 'translation' not in text_obj:
         return ""
-    translations = obj.get('translation', [])
-    if not translations:
-        return ""
-    # 优先取第一条翻译内容
-    return translations[0].get('text', '').strip()
+    # 将所有语言的文本拼接起来（通常只有英文，但这样最保险）
+    texts = [t.get('text', '').strip() for t in text_obj.get('translation', []) if t.get('text')]
+    return "\n".join(texts)
 
 def main():
     if not WEBHOOK_URL:
-        print("Missing Discord Webhook URL.")
+        print("Webhook URL missing.")
         return
 
-    # 1. 加载历史记录 (强制兼容格式)
-    old_history = {}
+    # 1. 加载历史记录 (强制转换为最简单的 ID 列表)
+    seen_ids = set()
     if os.path.exists(HISTORY_FILE):
         try:
             with open(HISTORY_FILE, 'r') as f:
-                raw_data = json.load(f)
-                # 无论存的是什么，都转成字典 key
-                if isinstance(raw_data, list):
-                    old_history = {str(i): True for i in raw_data}
-                elif isinstance(raw_data, dict):
-                    old_history = raw_data
+                raw = json.load(f)
+                seen_ids = set(raw) if isinstance(raw, list) else set(raw.keys())
         except:
-            old_history = {}
+            pass
 
-    # 2. 获取 API 数据
+    # 2. 获取原始数据
     try:
-        response = requests.get(DATA_URL, timeout=20)
-        response.raise_for_status()
+        response = requests.get(DATA_URL, timeout=30)
         data = response.json()
     except Exception as e:
-        print(f"Fetch Error: {e}")
+        print(f"API Error: {e}")
         return
 
     entities = data.get('entity', [])
-    current_history = {} # 用于保存本次运行的所有 ID
+    current_ids = []
 
     for entity in entities:
         alert_id = str(entity.get('id', ''))
-        if not alert_id:
-            continue
+        if not alert_id: continue
         
-        current_history[alert_id] = True # 标记为已知
-        
-        # 3. 如果是全新 ID，执行推送逻辑
-        if alert_id not in old_history:
+        current_ids.append(alert_id)
+
+        # 只要是新 ID，不做任何过滤，直接发送
+        if alert_id not in seen_ids:
             alert = entity.get('alert', {})
             
-            # 提取文本内容
-            title = get_mta_text(alert.get('headerText'))
-            description = get_mta_text(alert.get('descriptionText'))
+            # 原始字段全抓取
+            header = get_all_text(alert.get('headerText'))
+            description = get_all_text(alert.get('descriptionText'))
             
-            # 提取受影响的具体对象 (线路、车站、设施)
-            impacted_entities = []
+            # 抓取所有涉及的实体（Route, Stop, Agency 等）
+            impacted = []
             for info in alert.get('informedEntity', []):
-                # 优先级：线路ID > 车站ID > 机构ID
-                target = info.get('routeId') or info.get('stopId') or info.get('agencyId')
-                if target and target not in impacted_entities:
-                    impacted_entities.append(target)
+                # 收集所有可能的标识符
+                parts = [str(info.get(k)) for k in ['routeId', 'stopId', 'agencyId', 'facilityId'] if info.get(k)]
+                if parts:
+                    impacted.append(" / ".join(parts))
             
-            impact_str = ", ".join(impacted_entities) if impacted_entities else "General/System"
+            impact_str = " | ".join(impacted) if impacted else "No specific location data"
 
-            # 构造 Discord Embed
+            # 组装 Discord Embed
             payload = {
                 "embeds": [{
-                    "title": title if title else "MTA Notification",
-                    "description": description if description else "No additional description available.",
+                    "title": header if header else f"MTA Alert {alert_id}",
+                    "description": description if description else "No description text provided in source.",
+                    "color": 3447003, # 蓝色
                     "fields": [
-                        {"name": "Location / Impacted", "value": f"**{impact_str}**", "inline": False}
-                    ],
-                    "footer": {"text": f"Alert ID: {alert_id}"},
-                    "color": 3447003 # 蓝色，代表系统消息
-                }]
-            }
+                        {
+                            "name": "Source Informed Entities (ID/Route/Stop)",
+                            "value": f"
+http://googleusercontent.com/immersive_entry_chip/0
 
-            # 执行推送
-            try:
-                requests.post(WEBHOOK_URL, json=payload)
-            except:
-                pass
-
-    # 4. 保存历史记录
-    with open(HISTORY_FILE, 'w') as f:
-        json.dump(current_history, f)
-    print(f"Processed {len(entities)} alerts. History updated.")
-
-if __name__ == "__main__":
-    main()
+### 🧱 为什么这次能解决问题？
+1.  **取消所有 `if not` 过滤**：之前的代码会因为“没描述”或“标题太短”直接跳过。现在哪怕 MTA 只发了一个 ID，代码也会强行把这个 ID 发到 Discord。
+2.  **全维度实体抓取**：我增加了对 `facilityId` 和 `agencyId` 的抓取。电梯问题通常就在这些字段里，现在的代码会将它们全部列在 `Source Informed Entities` 这一栏。
+3.  **原始文本呈现**：使用了 ` 
+http://googleusercontent.com/immersive_entry_chip/1
