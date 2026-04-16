@@ -1,16 +1,31 @@
 import os
 import requests
 import json
+import re
+import html
 
 WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
 DATA_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fall-alerts.json"
 HISTORY_FILE = "alert_history.json"
 
+def clean_html(raw_html):
+    """清理文本中的 HTML 标签并处理换行"""
+    if not raw_html:
+        return ""
+    # 1. 将 <br> 或 <br/> 替换为换行符 \n，保证 Discord 里能正确换行
+    text = re.sub(r'<br\s*/?>', '\n', raw_html, flags=re.IGNORECASE)
+    # 2. 移除所有其他 HTML 标签 (例如 <span>, <strong> 等)
+    text = re.sub(r'<[^>]+>', '', text)
+    # 3. 将 HTML 实体（如 &amp;, &nbsp;）还原为普通字符
+    text = html.unescape(text)
+    return text.strip()
+
 def get_text(obj):
     if not obj: return ""
     translations = obj.get('translation', [])
     if translations:
-        return translations[0].get('text', '').strip()
+        raw_text = translations[0].get('text', '')
+        return clean_html(raw_text) # 在这里调用清理函数
     return ""
 
 def main():
