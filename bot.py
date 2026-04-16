@@ -13,53 +13,78 @@ def main():
         return
 
     try:
+        # 1. Fetch Data
         response = requests.get(DATA_URL)
         if response.status_code != 200:
             print(f"Failed to fetch MTA data: {response.status_code}")
             return
         
         data = response.json()
-        print("Successfully fetched MTA data.")
+        entities = data.get('entity', [])
+        # 新增日志：看看 API 到底传回了多少个原始数据块
+        print(f"Successfully fetched MTA data. Total entities in API: {len(entities)}")
         
+        # 2. Load History (增加防损坏机制)
         old_history = []
         if os.path.exists(HISTORY_FILE):
-            with open(HISTORY_FILE, 'r') as f:
-                old_history = json.load(f)
+            try:
+                with open(HISTORY_FILE, 'r') as f:
+                    old_history = json.load(f)
+            except json.JSONDecodeError:
+                print("History file is empty or corrupted. Starting fresh.")
+                old_history = [] 
 
         current_alerts = {}
-        for entity in data.get('entity', []):
+        
+        # 3. Parse Alerts (优化提取逻辑)
+        for entity in entities:
             alert = entity.get('alert')
-            if not alert: continue
+            if not alert: 
+                continue
             
-            # Content extraction
-            desc_obj = alert.get('descriptionText', alert.get('headerText', {}))
-            translations = desc_obj.get('translation', [])
-            content = translations[0].get('text', '').strip() if translations else ""
+            # 分别提取描述和标题 (更加稳定)
+            desc_obj = alert.get('descriptionText', {})
+            header_obj = alert.get('headerText', {})
             
-            # Line extraction
-            affected = [ent.get('routeId') for ent in alert.get('informedEntity', []) if ent.get('routeId')]
-            lines = ", ".join(affected) if affected else "System"
+            desc_text = desc_obj.get('translation', [{}])[0].get('text', '').strip() if desc_obj else ""
+            header_text = header_obj.get('translation', [{}])[0].get('text', '').strip() if header_obj else ""
             
-            if content and len(content) > 10:
-                current_alerts[str(entity.get('id'))] = {"lines": lines, "content": content}
+            # 优先使用描述，如果没有描述则使用标题
+            content = desc_text if desc_text else header_text
+            
+            # 提取受影响的线路 (去重)
+            affected = []
+            for ent in alert.get('informedEntity', []):
+                route_id = ent.get('routeId')
+                if route_id and route_id not in affected:
+                    affected.append(route_id)
+                    
+            lines = ", ".join(affected) if affected else "System-wide"
+            
+            # 放宽条件：只要有文字内容，就记录下来
+            if content:
+                current_alerts[str(entity.get('id'))] = {
+                    "lines": lines, 
+                    "content": content
+                }
 
         current_ids = list(current_alerts.keys())
-        print(f"Found {len(current_ids)} active alerts.")
+        print(f"Found {len(current_ids)} valid active alerts after filtering.")
 
-        # Check for NEW alerts
+        # 4. Notify NEW alerts
         for aid, info in current_alerts.items():
             if aid not in old_history:
                 payload = {
                     "embeds": [{
                         "title": f"🚨 NEW ALERT | Lines: {info['lines']}",
-                        "description": info['content'],
+                        "description": info['content'][:4000], # 防止内容超长导致 Discord 报错
                         "color": 15158332
                     }]
                 }
                 requests.post(WEBHOOK_URL, json=payload)
-                print(f"Sent notification for alert {aid}")
+                print(f"Sent NEW alert notice for ID: {aid}")
 
-        # Check for RESOLVED alerts
+        # 5. Notify RESOLVED alerts
         for old_id in old_history:
             if old_id not in current_ids:
                 payload = {
@@ -70,8 +95,9 @@ def main():
                     }]
                 }
                 requests.post(WEBHOOK_URL, json=payload)
-                print(f"Sent restoration notice for {old_id}")
+                print(f"Sent RESTORED notice for ID: {old_id}")
 
+        # 6. Save State
         with open(HISTORY_FILE, 'w') as f:
             json.dump(current_ids, f)
 
