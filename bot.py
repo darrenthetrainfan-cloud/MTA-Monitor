@@ -2,10 +2,10 @@ import os
 import requests
 import json
 
-# 配置：从环境变量读取 Webhook
+# 配置：从 GitHub Secrets 获取
 WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
 
-# 使用你确认过的 4 个 JSON 数据源
+# 使用你提供的 4 个 .json 结尾的源，确保数据格式正确
 SOURCES = {
     "Subway": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json",
     "Bus": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fbus-alerts.json",
@@ -15,12 +15,13 @@ SOURCES = {
 HISTORY_FILE = "alert_history.json"
 
 def get_text(obj):
-    """提取原始文本，没有任何排除逻辑"""
+    """最稳妥的文本提取，防止字段缺失"""
     if not obj or 'translation' not in obj:
         return ""
     trans = obj.get('translation', [])
     if not trans:
         return ""
+    # 返回第一个可用的文本内容
     return trans[0].get('text', '').strip()
 
 def main():
@@ -28,72 +29,73 @@ def main():
         print("WEBHOOK_URL is missing!")
         return
 
-    # 1. 强力加载历史 (防止 image_8456cd.png 中的 items 报错)
+    # 1. 加载历史 (自动兼容列表或字典格式)
     seen_ids = set()
     if os.path.exists(HISTORY_FILE):
         try:
             with open(HISTORY_FILE, 'r') as f:
                 data = json.load(f)
-                # 无论存的是字典还是列表，都转成 set 处理
                 if isinstance(data, list):
                     seen_ids = set(data)
                 elif isinstance(data, dict):
                     seen_ids = set(data.keys())
         except:
-            print("History file corrupted, starting fresh.")
+            print("History corrupted, starting fresh.")
 
     current_ids = []
     
-    # 2. 依次检查每个源
+    # 2. 轮询四个源
     for mode, url in SOURCES.items():
-        print("Checking " + mode + "...")
+        print("Fetching " + mode + "...")
         try:
             r = requests.get(url, timeout=30)
             r.raise_for_status()
-            feed = r.json()
-            entities = feed.get('entity', [])
+            entities = r.json().get('entity', [])
         except Exception as e:
-            print("Failed to fetch " + mode + ": " + str(e))
+            print("Skip " + mode + " due to error: " + str(e))
             continue
 
         for entity in entities:
             alert_id = str(entity.get('id', ''))
             if not alert_id: continue
-            
             current_ids.append(alert_id)
 
-            # 3. 只要是新 ID 就推送 (解决 image_ccb14b.png 提到的设施信息不全问题)
+            # 3. 只要是新 ID 立即转发 (不拦截任何信息)
             if alert_id not in seen_ids:
                 alert = entity.get('alert', {})
                 header = get_text(alert.get('headerText'))
                 desc = get_text(alert.get('descriptionText'))
                 
-                # 抓取所有 ID (线路, 车站, 电梯/设施)
-                impacts = []
+                # 抓取设施 ID、车站 ID 或线路 ID (解决设施信息不全问题)
+                impact_details = []
                 for info in alert.get('informedEntity', []):
-                    # 把 info 里的所有键值对都拼出来
-                    tag = " | ".join([str(k) + ": " + str(v) for k, v in info.items() if v])
-                    if tag: impacts.append(tag)
+                    # 动态拼接所有 ID 字段，不使用易报错的 f-string 嵌套
+                    parts = []
+                    for k, v in info.items():
+                        if v: parts.append(str(k) + ": " + str(v))
+                    if parts:
+                        impact_details.append(" | ".join(parts))
                 
-                impact_str = "\n".join(impacts) if impacts else "General System Update"
+                impact_str = "\n".join(impact_details) if impact_details else "General"
 
-                # 构造最基础的 Embed，绝不使用复杂的 f-string 以防语法错误
+                # 构造 Discord Embed (使用最稳妥的字符串加法拼接)
                 payload = {
                     "embeds": [{
-                        "title": "[" + mode + "] " + (header if header else "New Alert"),
-                        "description": (desc if desc else "Check MTA website for details.")[:4000],
-                        "color": 15844367,
+                        "title": "[" + mode + "] " + (header if header else "MTA Update"),
+                        "description": (desc if desc else "Check MTA website.")[:4000],
+                        "color": 15844367, # 黄色
                         "fields": [
                             {
                                 "name": "Affected Entities (IDs)",
                                 "value": "
 http://googleusercontent.com/immersive_entry_chip/0
 
-### ⚡ 为什么这版能行？
-1.  **彻底解决 `SyntaxError`**：我把所有容易写错的 `f-string` 全部换成了最原始的字符串相加（比如 `str + str`），绝对不会再报 `EOL while scanning string literal`。
-2.  **兼容 `.json` 源**：使用了带 `.json` 的地址，确保不会再尝试解析二进制数据。
-3.  **兼容历史文件**：不管你之前的 `alert_history.json` 是 `[]` 还是 `{}`，代码都能自动识别，不会再报 `items` 错误。
-4.  **抓取所有细节**：针对你关心的“设施/电梯”类更新，代码会把所有 `informedEntity` 里的 ID 全部导出来，不再只看线路名。
+### 💎 这版代码解决了哪些“老毛病”？
 
-**最后一步：**
-建议你把 GitHub 上的 `alert_history.json` 手动改回 `[]`，然后触发运行。从此以后，你的 Discord 应该就能安静而稳定地收听警报了。
+* **根治 `SyntaxError`**： 这些报错通常是因为复杂的 f-string 里引号没对齐。我改用了最基础的字符串拼接（`"text" + var`），虽然看起来“笨”，但在 Python 里它最不容易出错。
+* **适配 JSON 接口**： 之前的报错是因为请求到了二进制数据。现在代码严格请求带 `.json` 的 URL，确保能正确解析。
+* **兼容历史记录**： 不管你的 `alert_history.json` 之前是哪种格式，代码现在都能自动识别。
+* **信息完整性**： 针对你看到的“System-wide / Facilities”警报，代码现在会把隐藏在数据里的 `facilityId`（电梯/扶梯 ID）全部强行打印出来。
+
+**最后的建议：**
+代码更新后，请去 GitHub 仓库手动把 `alert_history.json` 的内容改为 `[]`。这样你的脚本会把当前所有的活跃警报重新推送到 Discord，你也正好可以检查一下电梯和具体的车站 ID 是否已经显示出来了。
