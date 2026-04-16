@@ -19,13 +19,14 @@ def main():
         data = response.json()
         entities = data.get('entity', [])
         
-        old_history = []
+        old_history_data = {} # 存储 ID 到线路名的映射
         if os.path.exists(HISTORY_FILE):
             try:
                 with open(HISTORY_FILE, 'r') as f:
-                    old_history = json.load(f)
+                    # 读取旧的历史字典
+                    old_history_data = json.load(f)
             except:
-                old_history = [] 
+                old_history_data = {} 
 
         current_alerts = {}
         for entity in entities:
@@ -35,64 +36,63 @@ def main():
             # 提取标题和描述
             h_obj = alert.get('headerText', {})
             d_obj = alert.get('descriptionText', {})
-            header = h_obj.get('translation', [{}])[0].get('text', 'Alert Update').strip()
+            header = h_obj.get('translation', [{}])[0].get('text', '').strip()
             desc = d_obj.get('translation', [{}])[0].get('text', '').strip()
             
-            # 提取线路并格式化为 [L], [1]
+            # 合并文字
+            if header and desc and header != desc:
+                full_text = f"{header}\n\n{desc}"
+            else:
+                full_text = header if header else desc
+            
+            # 提取线路 [A] [C]
             affected = []
             for ent in alert.get('informedEntity', []):
                 rid = ent.get('routeId')
                 if rid and rid not in affected:
                     affected.append(f"[{rid}]")
             
-            lines_str = " ".join(affected) if affected else "🚇 System-wide"
+            lines_str = " ".join(affected) if affected else "🚇 System Update"
             
             current_alerts[str(entity.get('id'))] = {
                 "lines": lines_str,
-                "header": header,
-                "desc": desc
+                "body": full_text
             }
 
-        current_ids = list(current_alerts.keys())
-
-        # --- 发送新警报 (红色) ---
+        # --- 1. 发送新警报 (红色) ---
         new_count = 0
         for aid, info in current_alerts.items():
-            if aid not in old_history:
-                if new_count >= 8: break # 限制单次发送数量
-
-                # 拼接显示内容：如果描述和标题一样，就只显示一个
-                full_body = f"**{info['header']}**\n\n{info['desc']}" if info['desc'] and info['desc'] != info['header'] else info['header']
-                
+            if aid not in old_history_data:
+                if new_count >= 10: break
                 payload = {
                     "embeds": [{
-                        "title": f"🚨 MTA ALERT | {info['lines']}",
-                        "description": full_body[:2000],
-                        "color": 15158332, # 红色
-                        "footer": {"text": f"Alert ID: {aid}"}
+                        "title": f"🚨 NEW: {info['lines']}",
+                        "description": info['body'][:4000],
+                        "color": 15158332,
                     }]
                 }
                 requests.post(WEBHOOK_URL, json=payload)
                 new_count += 1
 
-        # --- 发送恢复通知 (绿色) ---
-        # 如果你不需要恢复通知，可以把下面这段删掉
+        # --- 2. 发送恢复通知 (绿色) ---
         res_count = 0
-        for old_id in old_history:
-            if old_id not in current_ids:
+        for old_id, old_lines in old_history_data.items():
+            if old_id not in current_alerts:
                 if res_count >= 5: break
                 payload = {
                     "embeds": [{
-                        "title": "✅ SERVICE RESTORED",
-                        "description": f"The alert (ID: {old_id}) is no longer active. Service is resuming normal operations.",
-                        "color": 3066993, # 绿色
+                        "title": f"✅ RESTORED: {old_lines}",
+                        "description": f"The service alert (ID: {old_id}) has been resolved. Service is resuming normal operations.",
+                        "color": 3066993,
                     }]
                 }
                 requests.post(WEBHOOK_URL, json=payload)
                 res_count += 1
 
+        # --- 3. 保存历史 (保存 ID 和线路名，方便恢复时显示) ---
+        new_history_to_save = {aid: info['lines'] for aid, info in current_alerts.items()}
         with open(HISTORY_FILE, 'w') as f:
-            json.dump(current_ids, f)
+            json.dump(new_history_to_save, f)
 
     except Exception as e:
         print(f"Error: {e}")
