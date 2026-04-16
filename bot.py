@@ -2,94 +2,82 @@ import os
 import requests
 import json
 
-# 配置
+# 配置：从 GitHub Secrets 读取 Discord Webhook
 WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
-# 四个专用数据源
+
+# 使用你提供的四个 JSON 格式 API 源
 SOURCES = {
-    "Subway": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts",
-    "Bus": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fbus-alerts",
-    "LIRR": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Flirr-alerts",
-    "MNR": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fmnr-alerts"
+    "Subway": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json",
+    "Bus": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fbus-alerts.json",
+    "LIRR": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Flirr-alerts.json",
+    "MNR": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fmnr-alerts.json"
 }
 HISTORY_FILE = "alert_history.json"
 
 def get_text_safe(obj):
-    """提取原始文本，没有任何排除"""
+    """安全提取翻译列表中的文本，防止字段缺失导致报错"""
     if not obj or 'translation' not in obj:
         return ""
     translations = obj.get('translation', [])
-    if not translations:
-        return ""
-    return translations[0].get('text', '').strip()
+    # 优先返回第一条内容（通常是英文）
+    return translations[0].get('text', '').strip() if translations else ""
 
 def main():
     if not WEBHOOK_URL:
-        print("WEBHOOK_URL is missing")
+        print("Error: DISCORD_WEBHOOK_URL is not set.")
         return
 
-    # 1. 读取历史 (兼容列表和字典)
+    # 1. 加载历史记录 (修正了导致 'list' object has no attribute 'items' 的解析逻辑)
     seen_ids = set()
     if os.path.exists(HISTORY_FILE):
         try:
             with open(HISTORY_FILE, 'r') as f:
                 data = json.load(f)
-                seen_ids = set(data) if isinstance(data, list) else set(data.keys())
-        except:
-            pass
+                # 兼容旧版本的字典格式和现在的列表格式
+                if isinstance(data, list):
+                    seen_ids = set(data)
+                elif isinstance(data, dict):
+                    seen_ids = set(data.keys())
+        except Exception as e:
+            print(f"Warning: Could not load history, starting fresh. {e}")
 
     new_history = []
     
-    # 2. 遍历所有数据源
+    # 2. 依次抓取四个数据源
     for mode, url in SOURCES.items():
-        print("Fetching " + mode + "...")
+        print(f"Checking {mode} alerts...")
         try:
             r = requests.get(url, timeout=30)
-            data = r.json()
-            entities = data.get('entity', [])
+            r.raise_for_status()
+            # 此时 r.json() 会成功，因为 URL 已更新为 .json 后缀
+            feed_data = r.json()
+            entities = feed_data.get('entity', [])
         except Exception as e:
-            print("Error fetching " + mode + ": " + str(e))
+            print(f"Skip {mode} due to fetch error: {e}")
             continue
 
         for entity in entities:
             alert_id = str(entity.get('id', ''))
             if not alert_id: continue
+            
             new_history.append(alert_id)
 
-            # 3. 发现新 ID 直接发送，不做任何过滤
+            # 3. 如果是从未见过的警报，立即推送
             if alert_id not in seen_ids:
                 alert = entity.get('alert', {})
                 header = get_text_safe(alert.get('headerText'))
                 description = get_text_safe(alert.get('descriptionText'))
                 
-                # 抓取 Informed Entities (线路、车站、设施 ID)
-                impact_list = []
+                # 提取受影响的实体信息 (专门针对电梯/设施 ID 优化)
+                impact_details = []
                 for info in alert.get('informedEntity', []):
-                    details = [k + ": " + str(v) for k, v in info.items() if v]
-                    if details:
-                        impact_list.append(" | ".join(details))
+                    # 动态抓取 info 中所有存在的 ID 字段 (routeId, stopId, facilityId 等)
+                    tags = [f"{k}: {v}" for k, v in info.items() if v]
+                    if tags:
+                        impact_details.append(" | ".join(tags))
                 
-                # 拼装消息体
-                content = "**Details:**\n" + (description if description else "No description provided.")
-                content += "\n\n**Informed Entities:**\n" + ("\n".join(impact_list) if impact_list else "None")
+                impact_str = "\n".join(impact_details) if impact_details else "General System Update"
 
+                # 构造 Discord Embed
                 payload = {
                     "embeds": [{
-                        "title": "[" + mode + "] " + (header if header else "New Alert"),
-                        "description": content[:4000],
-                        "color": 15844367, # 亮黄色
-                        "footer": {"text": "Alert ID: " + alert_id}
-                    }]
-                }
-
-                try:
-                    requests.post(WEBHOOK_URL, json=payload)
-                except:
-                    pass
-
-    # 4. 保存最新的全量 ID 列表
-    with open(HISTORY_FILE, 'w') as f:
-        json.dump(new_history, f)
-    print("Execution finished.")
-
-if __name__ == "__main__":
-    main()
