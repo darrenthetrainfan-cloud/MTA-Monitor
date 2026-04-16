@@ -2,83 +2,84 @@ import os
 import requests
 import json
 
+# 配置
 WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
-# 全量 JSON 数据源，包含地铁、巴士、电梯、闸机等所有警报
 DATA_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fall-alerts.json"
 HISTORY_FILE = "alert_history.json"
 
-def get_all_text(text_obj):
-    """提取所有可用的翻译文本，不留死角"""
-    if not text_obj or 'translation' not in text_obj:
+def get_text_safe(obj):
+    """安全提取 MTA 复杂的翻译文本"""
+    if not obj or 'translation' not in obj:
         return ""
-    # 将所有语言的文本拼接起来（通常只有英文，但这样最保险）
-    texts = [t.get('text', '').strip() for t in text_obj.get('translation', []) if t.get('text')]
-    return "\n".join(texts)
+    translations = obj.get('translation', [])
+    if not translations:
+        return ""
+    # 返回第一个可用的文本
+    return translations[0].get('text', '').strip()
 
 def main():
     if not WEBHOOK_URL:
-        print("Webhook URL missing.")
+        print("Webhook URL is missing.")
         return
 
-    # 1. 加载历史记录 (强制转换为最简单的 ID 列表)
+    # 1. 加载历史记录 (强制转换为 Set 提高效率)
     seen_ids = set()
     if os.path.exists(HISTORY_FILE):
         try:
             with open(HISTORY_FILE, 'r') as f:
-                raw = json.load(f)
-                seen_ids = set(raw) if isinstance(raw, list) else set(raw.keys())
+                data = json.load(f)
+                seen_ids = set(data) if isinstance(data, list) else set(data.keys())
         except:
             pass
 
-    # 2. 获取原始数据
+    # 2. 获取 MTA 数据
     try:
         response = requests.get(DATA_URL, timeout=30)
+        response.raise_for_status()
         data = response.json()
     except Exception as e:
         print(f"API Error: {e}")
         return
 
     entities = data.get('entity', [])
-    current_ids = []
+    current_all_ids = []
 
     for entity in entities:
         alert_id = str(entity.get('id', ''))
-        if not alert_id: continue
+        if not alert_id:
+            continue
         
-        current_ids.append(alert_id)
+        current_all_ids.append(alert_id)
 
-        # 只要是新 ID，不做任何过滤，直接发送
+        # 如果是新 ID，不做任何过滤，直接发送原始信息
         if alert_id not in seen_ids:
             alert = entity.get('alert', {})
             
-            # 原始字段全抓取
-            header = get_all_text(alert.get('headerText'))
-            description = get_all_text(alert.get('descriptionText'))
+            # 抓取标题和描述
+            header = get_text_safe(alert.get('headerText'))
+            description = get_text_safe(alert.get('descriptionText'))
             
-            # 抓取所有涉及的实体（Route, Stop, Agency 等）
-            impacted = []
+            # 抓取所有涉及的实体标识符（线路、车站、设施）
+            impact_list = []
             for info in alert.get('informedEntity', []):
-                # 收集所有可能的标识符
-                parts = [str(info.get(k)) for k in ['routeId', 'stopId', 'agencyId', 'facilityId'] if info.get(k)]
-                if parts:
-                    impacted.append(" / ".join(parts))
+                # 尝试抓取所有可能的 ID 字段
+                tags = []
+                for key in ['routeId', 'stopId', 'facilityId', 'agencyId']:
+                    val = info.get(key)
+                    if val:
+                        tags.append(f"{key}: {val}")
+                if tags:
+                    impact_list.append(" | ".join(tags))
             
-            impact_str = " | ".join(impacted) if impacted else "No specific location data"
+            impact_info = "\n".join(impact_list) if impact_list else "No detailed entity ID"
 
-            # 组装 Discord Embed
+            # 构造 Discord Embed
             payload = {
                 "embeds": [{
-                    "title": header if header else f"MTA Alert {alert_id}",
-                    "description": description if description else "No description text provided in source.",
-                    "color": 3447003, # 蓝色
+                    "title": header if header else "MTA Notification",
+                    "description": description if description else "No description available.",
+                    "color": 15158332, # 红色
                     "fields": [
                         {
-                            "name": "Source Informed Entities (ID/Route/Stop)",
+                            "name": "Affected Entities (Original Data)",
                             "value": f"
-http://googleusercontent.com/immersive_entry_chip/0
-
-### 🧱 为什么这次能解决问题？
-1.  **取消所有 `if not` 过滤**：之前的代码会因为“没描述”或“标题太短”直接跳过。现在哪怕 MTA 只发了一个 ID，代码也会强行把这个 ID 发到 Discord。
-2.  **全维度实体抓取**：我增加了对 `facilityId` 和 `agencyId` 的抓取。电梯问题通常就在这些字段里，现在的代码会将它们全部列在 `Source Informed Entities` 这一栏。
-3.  **原始文本呈现**：使用了 ` 
-http://googleusercontent.com/immersive_entry_chip/1
