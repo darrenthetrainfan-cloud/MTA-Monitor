@@ -6,81 +6,50 @@ WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
 DATA_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fall-alerts.json"
 HISTORY_FILE = "alert_history.json"
 
-def get_text(obj):
-    if not obj: return ""
-    translations = obj.get('translation', [])
-    if translations:
-        return translations[0].get('text', '').strip()
-    return ""
-
 def main():
-    if not WEBHOOK_URL: return
-
     try:
-        response = requests.get(DATA_URL)
-        if response.status_code != 200: return
-        
-        data = response.json()
+        res = requests.get(DATA_URL)
+        data = res.json()
         entities = data.get('entity', [])
+        print(f"Total entities fetched: {len(entities)}")
+
+        with open(HISTORY_FILE, 'r') as f:
+            old_history = json.load(f)
+            if isinstance(old_history, list): old_history = {} # 彻底清除旧列表格式
+    except:
+        old_history = {}
+
+    current_alerts = {}
+    for ent in entities:
+        alert = ent.get('alert')
+        if not alert: continue
         
-        # 加载历史记录
-        old_history = []
-        if os.path.exists(HISTORY_FILE):
-            try:
-                with open(HISTORY_FILE, 'r') as f:
-                    data_load = json.load(f)
-                    # 兼容性处理：如果是字典则取 key，如果是列表则直接用
-                    old_history = list(data_load.keys()) if isinstance(data_load, dict) else data_load
-            except:
-                old_history = [] 
+        # 极致提取：不管 MTA 怎么变格式，把能找到的字都抓出来
+        h = alert.get('headerText', {}).get('translation', [{}])[0].get('text', '')
+        d = alert.get('descriptionText', {}).get('translation', [{}])[0].get('text', '')
+        content = f"{h}\n\n{d}".strip()
+        
+        # 识别线路或设施
+        routes = [f"[{e.get('routeId')}]" for e in alert.get('informedEntity', []) if e.get('routeId')]
+        title = " ".join(routes) if routes else "🚇 System/Facility Update"
+        
+        current_alerts[str(ent.get('id'))] = title
 
-        current_ids = []
-        new_count = 0
+        # 核心：如果是新 ID，立刻发 DC
+        if str(ent.get('id')) not in old_history:
+            payload = {
+                "embeds": [{
+                    "title": f"📢 NEW | {title}",
+                    "description": content[:2000] if content else "No description provided.",
+                    "color": 15844367
+                }]
+            }
+            requests.post(WEBHOOK_URL, json=payload)
 
-        for entity in entities:
-            alert = entity.get('alert')
-            if not alert: continue
-            
-            alert_id = str(entity.get('id'))
-            current_ids.append(alert_id)
-                
-            # 如果是新警报
-            if alert_id not in old_history:
-                header = get_text(alert.get('headerText'))
-                desc = get_text(alert.get('descriptionText'))
-                
-                # 提取受影响线路
-                affected = []
-                for ent in alert.get('informedEntity', []):
-                    rid = ent.get('routeId')
-                    if rid and rid not in affected:
-                        affected.append(rid)
-                
-                lines_str = ", ".join(affected) if affected else "System-wide"
-                
-                # 构造 Discord Embed
-                payload = {
-                    "embeds": [{
-                        "title": header if header else "MTA Alert",
-                        "description": desc if desc else "No details provided.",
-                        "fields": [
-                            {"name": "Affected Lines", "value": f"**{lines_str}**", "inline": False}
-                        ],
-                        "footer": {"text": f"Alert ID: {alert_id}"},
-                        "color": 15158332 # 红色
-                    }]
-                }
-                
-                if new_count < 10: # 限制单次发送数量防止刷屏
-                    requests.post(WEBHOOK_URL, json=payload)
-                    new_count += 1
-
-        # 保存当前所有 ID 到历史记录
-        with open(HISTORY_FILE, 'w') as f:
-            json.dump(current_ids, f)
-
-    except Exception as e:
-        print(f"Error: {e}")
+    # 保存历史
+    with open(HISTORY_FILE, 'w') as f:
+        json.dump(current_alerts, f)
+    print(f"Sync complete. Monitoring {len(current_alerts)} alerts.")
 
 if __name__ == "__main__":
     main()
