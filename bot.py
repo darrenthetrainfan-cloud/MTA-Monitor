@@ -16,20 +16,19 @@ def clean_text(raw_html):
     text = re.sub(r'<br\s*/?>', '\n', raw_html, flags=re.IGNORECASE)
     # 移除所有 HTML 标签
     text = re.sub(r'<[^>]+>', '', text)
-    # 还原转义字符 (&amp; 等)
+    # 还原转义字符
     text = html.unescape(text)
-    # 移除多余空格和重复换行
-    text = re.sub(r'\n\s*\n', '\n', text)
     return text.strip()
 
 def get_text_safe(obj):
-    """从翻译对象中提取文本，确保不返回空字符串"""
-    if not obj: return ""
+    """提取文本，如果是空的则返回 None"""
+    if not obj: return None
     translations = obj.get('translation', [])
     for trans in translations:
         val = trans.get('text', '')
-        if val: return clean_text(val)
-    return ""
+        cleaned = clean_text(val)
+        if cleaned: return cleaned
+    return None
 
 def main():
     if not WEBHOOK_URL: return
@@ -59,52 +58,58 @@ def main():
             current_ids.append(alert_id)
                 
             if alert_id not in old_history:
-                # 提取标题和描述
+                # 1. 提取文字内容
                 h = get_text_safe(alert.get('headerText'))
                 d = get_text_safe(alert.get('descriptionText'))
                 
-                # --- 智能补全逻辑 ---
-                # 如果描述为空，就把标题当作描述；如果标题为空，就用描述
-                final_title = h if h else "MTA Service Alert"
-                final_desc = d if d else h
-                if not final_desc: final_desc = "No specific details provided."
+                # --- 重要过滤逻辑 ---
+                # 如果标题和描述全是空的，说明这是个无效警报，直接跳过
+                if not h and not d:
+                    continue 
 
-                # --- 智能识别影响范围 ---
+                # 2. 文本整合：谁有内容就用谁
+                final_title = h if h else "MTA Service Update"
+                final_desc = d if d else h # 描述空了用标题补，标题空了用描述补
+                
+                # 3. 识别影响范围
                 affected_lines = []
                 affected_stations = []
                 for ent in alert.get('informedEntity', []):
                     r_id = ent.get('routeId')
                     s_id = ent.get('stopId')
-                    if r_id and r_id not in affected_lines: affected_lines.append(r_id)
-                    if s_id and s_id not in affected_stations: affected_stations.append(s_id)
+                    # 有些电梯警报会把 ID 藏在这些地方
+                    if r_id: affected_lines.append(r_id)
+                    if s_id: affected_stations.append(s_id)
                 
                 if affected_lines:
-                    impact = f"🚇 Lines: **{', '.join(affected_lines)}**"
+                    impact = f"🚇 Lines: **{', '.join(set(affected_lines))}**"
                 elif affected_stations:
-                    # 如果是电梯，通常这里会显示车站 ID
-                    impact = f"📍 Station/Facility: **{', '.join(affected_stations)}**"
+                    impact = f"📍 Station ID: **{', '.join(set(affected_stations))}**"
                 else:
                     impact = "🌐 System-wide"
 
-                # 构造 Discord Embed
+                # 4. 构造 Discord Embed
                 payload = {
                     "embeds": [{
-                        "title": (final_title[:250] + '...') if len(final_title) > 250 else final_title,
+                        "title": final_title[:250],
                         "description": final_desc[:2000],
                         "fields": [
                             {"name": "Impact Scope", "value": impact, "inline": False}
                         ],
-                        "footer": {"text": f"ID: {alert_id}"},
-                        "color": 15844367 if "lmm" in alert_id else 15158332 # 电梯黄色，其他红色
+                        "footer": {"text": f"Alert ID: {alert_id}"},
+                        "color": 15844367 if "lmm" in alert_id else 15158332
                     }]
                 }
                 
                 if new_count < 10:
-                    if requests.post(WEBHOOK_URL, json=payload).status_code < 300:
+                    res = requests.post(WEBHOOK_URL, json=payload)
+                    if res.status_code < 300:
                         new_count += 1
 
+        # 保存记录
         with open(HISTORY_FILE, 'w') as f:
             json.dump(current_ids, f)
+        print(f"Done. Sent {new_count} meaningful alerts.")
 
     except Exception as e:
         print(f"Error: {e}")
