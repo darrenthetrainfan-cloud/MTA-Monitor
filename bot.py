@@ -6,107 +6,50 @@ WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
 DATA_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fall-alerts.json"
 HISTORY_FILE = "alert_history.json"
 
-def get_text(obj):
-    if not obj: return ""
-    translations = obj.get('translation', [])
-    if translations:
-        return translations[0].get('text', '').strip()
-    return ""
-
 def main():
-    if not WEBHOOK_URL: return
-
     try:
-        response = requests.get(DATA_URL)
-        if response.status_code != 200: return
-        
-        data = response.json()
+        res = requests.get(DATA_URL)
+        data = res.json()
         entities = data.get('entity', [])
-        
+        print(f"Total entities fetched: {len(entities)}")
+
+        with open(HISTORY_FILE, 'r') as f:
+            old_history = json.load(f)
+            if isinstance(old_history, list): old_history = {} # 彻底清除旧列表格式
+    except:
         old_history = {}
-        if os.path.exists(HISTORY_FILE):
-            try:
-                with open(HISTORY_FILE, 'r') as f:
-                    old_history = json.load(f)
-            except:
-                old_history = {} 
 
-        current_alerts = {}
-        for entity in entities:
-            alert = entity.get('alert')
-            if not alert: continue
-                
-            header = get_text(alert.get('headerText'))
-            desc = get_text(alert.get('descriptionText'))
-            full_body = f"{header}\n\n{desc}" if header and desc and header != desc else (header or desc)
-            if not full_body: continue
+    current_alerts = {}
+    for ent in entities:
+        alert = ent.get('alert')
+        if not alert: continue
+        
+        # 极致提取：不管 MTA 怎么变格式，把能找到的字都抓出来
+        h = alert.get('headerText', {}).get('translation', [{}])[0].get('text', '')
+        d = alert.get('descriptionText', {}).get('translation', [{}])[0].get('text', '')
+        content = f"{h}\n\n{d}".strip()
+        
+        # 识别线路或设施
+        routes = [f"[{e.get('routeId')}]" for e in alert.get('informedEntity', []) if e.get('routeId')]
+        title = " ".join(routes) if routes else "🚇 System/Facility Update"
+        
+        current_alerts[str(ent.get('id'))] = title
 
-            # 智能分类标签
-            tags = []
-            lower_body = full_body.lower()
-            if "elevator" in lower_body: tags.append("🛗 ELEVATOR")
-            if "escalator" in lower_body: tags.append("🪜 ESCALATOR")
-            if any(x in lower_body for x in ["gate", "turnstile", "fare", "omny"]): tags.append("💳 FARE/GATE")
-
-            # 线路与车站识别
-            affected_routes = []
-            affected_stops = []
-            for ent in alert.get('informedEntity', []):
-                r_id = ent.get('routeId')
-                s_id = ent.get('stopId')
-                if r_id and r_id not in affected_routes: affected_routes.append(f"[{r_id}]")
-                if s_id and s_id not in affected_stops: affected_stops.append(s_id)
-            
-            # 构建标题
-            prefix = " | ".join(tags) if tags else "🚇 SERVICE"
-            if affected_routes:
-                location = " ".join(affected_routes)
-            elif affected_stops:
-                location = f"Station: {affected_stops[0]}"
-            else:
-                location = "System Update"
-
-            current_alerts[str(entity.get('id'))] = {
-                "title": f"{prefix} | {location}",
-                "body": full_body
+        # 核心：如果是新 ID，立刻发 DC
+        if str(ent.get('id')) not in old_history:
+            payload = {
+                "embeds": [{
+                    "title": f"📢 NEW | {title}",
+                    "description": content[:2000] if content else "No description provided.",
+                    "color": 15844367
+                }]
             }
+            requests.post(WEBHOOK_URL, json=payload)
 
-        # 1. 发送通知
-        new_count = 0
-        for aid, info in current_alerts.items():
-            if aid not in old_history:
-                if new_count >= 15: break 
-                
-                payload = {
-                    "embeds": [{
-                        "title": info['title'],
-                        "description": info['body'][:4000],
-                        "color": 15844367 if "🚇" in info['title'] else 3447003, # 蓝色代表设施，金色代表运营
-                    }]
-                }
-                requests.post(WEBHOOK_URL, json=payload)
-                new_count += 1
-
-        # 2. 恢复通知
-        res_count = 0
-        for old_id, old_title in old_history.items():
-            if old_id not in current_alerts:
-                if res_count >= 10: break
-                requests.post(WEBHOOK_URL, json={
-                    "embeds": [{
-                        "title": f"✅ RESOLVED: {old_title}",
-                        "color": 3066993,
-                    }]
-                })
-                res_count += 1
-
-        # 3. 保存
-        new_history = {aid: info['title'] for aid, info in current_alerts.items()}
-        with open(HISTORY_FILE, 'w') as f:
-            json.dump(new_history, f)
-
-    except Exception as e:
-        print(f"Error: {e}")
+    # 保存历史
+    with open(HISTORY_FILE, 'w') as f:
+        json.dump(current_alerts, f)
+    print(f"Sync complete. Monitoring {len(current_alerts)} alerts.")
 
 if __name__ == "__main__":
     main()
