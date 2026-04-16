@@ -1,36 +1,37 @@
-name: MTA Alerts Monitor
+name: MTA Live Monitor
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # 每 15 分钟运行一次
-  workflow_dispatch:        # 支持手动点击运行
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 jobs:
-  check-alerts:
+  run-bot:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # 保障写入 seen_alerts.json 的权限
-
+      contents: write
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-          cache: 'pip' # 核心优化：缓存 pip 依赖包，大幅加快 Actions 运行速度
+          python-version: '3.9'
 
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install requests
 
-      - name: Fetch Alerts and Notify Discord
+      - name: Run Bot
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python mta_alerts.py
+        run: python bot.py  # 这里必须对应你的文件名！
 
-      - name: Commit State File
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: update MTA alerts state [skip ci]"
-          file_pattern: 'seen_alerts.json'
+      - name: Save History
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "actions@github.com"
+          git add alert_history.json
+          git commit -m "Update history [skip ci]" || echo "No changes"
+          git pull --rebase origin main
+          git push origin main
