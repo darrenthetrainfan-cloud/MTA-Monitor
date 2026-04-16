@@ -18,90 +18,84 @@ def main():
         
         data = response.json()
         entities = data.get('entity', [])
-        print(f"Successfully fetched MTA data. Total entities in API: {len(entities)}")
         
         old_history = []
         if os.path.exists(HISTORY_FILE):
             try:
                 with open(HISTORY_FILE, 'r') as f:
                     old_history = json.load(f)
-            except json.JSONDecodeError:
+            except:
                 old_history = [] 
 
         current_alerts = {}
-        
         for entity in entities:
             alert = entity.get('alert')
-            if not alert: 
-                continue
+            if not alert: continue
                 
-            # 暴力兼容：抓取所有可能的文字字段
-            desc_obj = alert.get('descriptionText') or alert.get('description_text') or {}
-            header_obj = alert.get('headerText') or alert.get('header_text') or {}
+            # 提取标题和描述
+            h_obj = alert.get('headerText', {})
+            d_obj = alert.get('descriptionText', {})
+            header = h_obj.get('translation', [{}])[0].get('text', 'Alert Update').strip()
+            desc = d_obj.get('translation', [{}])[0].get('text', '').strip()
             
-            desc_text = ""
-            header_text = ""
-            
-            # 尝试解包 JSON 结构
-            if isinstance(desc_obj, dict) and 'translation' in desc_obj:
-                desc_text = desc_obj['translation'][0].get('text', '')
-            elif isinstance(desc_obj, str): 
-                desc_text = desc_obj
-                
-            if isinstance(header_obj, dict) and 'translation' in header_obj:
-                header_text = header_obj['translation'][0].get('text', '')
-            elif isinstance(header_obj, str):
-                header_text = header_obj
-                
-            content = desc_text if desc_text else header_text
-            
-            # 终极兜底：如果 API 连字都不给，至少我们知道这里有个故障
-            if not content:
-                content = f"Status Update (No description provided by MTA). Alert ID: {entity.get('id')}"
-            
-            # 提取线路
+            # 提取线路并格式化为 [L], [1]
             affected = []
             for ent in alert.get('informedEntity', []):
-                route_id = ent.get('routeId')
-                if route_id and route_id not in affected:
-                    affected.append(route_id)
-                    
-            lines = ", ".join(affected) if affected else "System-wide"
+                rid = ent.get('routeId')
+                if rid and rid not in affected:
+                    affected.append(f"[{rid}]")
             
-            # 现在没有任何条件限制，全部装进去
+            lines_str = " ".join(affected) if affected else "🚇 System-wide"
+            
             current_alerts[str(entity.get('id'))] = {
-                "lines": lines, 
-                "content": content
+                "lines": lines_str,
+                "header": header,
+                "desc": desc
             }
 
         current_ids = list(current_alerts.keys())
-        print(f"Found {len(current_ids)} valid active alerts after filtering.")
 
-        # 发送新通知 (最多只发前10个，防止第一次运行把 Discord 搞崩溃)
-        notify_count = 0
+        # --- 发送新警报 (红色) ---
+        new_count = 0
         for aid, info in current_alerts.items():
             if aid not in old_history:
-                if notify_count >= 10:
-                    print("Too many new alerts! Stopping notifications for this run to avoid Discord rate limits.")
-                    break
+                if new_count >= 8: break # 限制单次发送数量
+
+                # 拼接显示内容：如果描述和标题一样，就只显示一个
+                full_body = f"**{info['header']}**\n\n{info['desc']}" if info['desc'] and info['desc'] != info['header'] else info['header']
                 
                 payload = {
                     "embeds": [{
-                        "title": f"🚨 NEW ALERT | Lines: {info['lines']}",
-                        "description": info['content'][:4000], 
-                        "color": 15158332
+                        "title": f"🚨 MTA ALERT | {info['lines']}",
+                        "description": full_body[:2000],
+                        "color": 15158332, # 红色
+                        "footer": {"text": f"Alert ID: {aid}"}
                     }]
                 }
                 requests.post(WEBHOOK_URL, json=payload)
-                print(f"Sent NEW alert notice for ID: {aid}")
-                notify_count += 1
+                new_count += 1
 
-        # 更新历史记录
+        # --- 发送恢复通知 (绿色) ---
+        # 如果你不需要恢复通知，可以把下面这段删掉
+        res_count = 0
+        for old_id in old_history:
+            if old_id not in current_ids:
+                if res_count >= 5: break
+                payload = {
+                    "embeds": [{
+                        "title": "✅ SERVICE RESTORED",
+                        "description": f"The alert (ID: {old_id}) is no longer active. Service is resuming normal operations.",
+                        "color": 3066993, # 绿色
+                    }]
+                }
+                requests.post(WEBHOOK_URL, json=payload)
+                res_count += 1
+
         with open(HISTORY_FILE, 'w') as f:
             json.dump(current_ids, f)
 
     except Exception as e:
-        print(f"Runtime Error: {e}")
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
