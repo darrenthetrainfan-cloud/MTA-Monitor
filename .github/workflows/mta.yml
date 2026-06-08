@@ -1,0 +1,42 @@
+name: MTA Alerts Monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # 每 5 分钟运行一次
+  workflow_dispatch: # 允许在 GitHub 网页上手动点击运行
+
+jobs:
+  check-alerts:
+    runs-on: ubuntu-latest
+    
+    # 授予 GitHub Actions 写入仓库的权限（这样它才能把 JSON 文件存下来）
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run MTA Alert Script
+        # 从 GitHub Secrets 读取 Discord Webhook 链接
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python mta_alerts.py
+
+      - name: Commit and Push State
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add active_alerts.json
+          # 如果文件有变动才进行 commit
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update MTA active alerts state [skip ci]" && git push)
