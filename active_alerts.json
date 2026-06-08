@@ -9,11 +9,11 @@
     },
     "lmm:alert:543634": {
         "header": "Downtown [M] trains are running with delays after we moved a train that had its brakes activated at 21 St-Queensbridge.",
-        "services": "MTASBWY, M"
+        "services": "M, MTASBWY"
     },
     "lmm:planned_work:32510": {
         "header": "At 34 St-Penn Station [1][2][3], street stairway entrances/exits along 7 Av may be closed",
-        "services": "2, 3, 1"
+        "services": "2, 1, 3"
     },
     "lmm:planned_work:32505": {
         "header": "In Manhattan, downtown [F] skips 23 St and 14 St",
@@ -97,11 +97,11 @@
     },
     "lmm:planned_work:32281": {
         "header": "In the Bronx, Pelham Bay Park-bound express [6X] runs local from 3 Av-138 St to Parkchester",
-        "services": "6X, 6"
+        "services": "6, 6X"
     },
     "lmm:planned_work:32280": {
         "header": "In the Bronx, Manhattan-bound express [6X] runs local from Hunts Point Av to 3 Av-138 St",
-        "services": "6X, 6"
+        "services": "6, 6X"
     },
     "lmm:planned_work:32279": {
         "header": "In the Bronx, Manhattan-bound [6] skips St Lawrence Av, Morrison Av-Soundview, Elder Av and Whitlock Av\nThe last stop for some Bronx-bound trains is 3 Av-138 St",
@@ -133,11 +133,11 @@
     },
     "lmm:planned_work:32168": {
         "header": "In the Bronx, Manhattan-bound express [6X] runs local from Parkchester to 3 Av-138 St",
-        "services": "6X, 6"
+        "services": "6, 6X"
     },
     "lmm:planned_work:32167": {
         "header": "In the Bronx, Pelham Bay Park-bound express [6X] runs local from 3 Av-138 St to Parkchester",
-        "services": "6X, 6"
+        "services": "6, 6X"
     },
     "lmm:planned_work:32166": {
         "header": "In the Bronx, Manhattan-bound [6] skips Buhre Av, Middletown Rd, Westchester Sq-E Tremont Av, Zerega Av and Castle Hill Av",
@@ -197,7 +197,7 @@
     },
     "lmm:planned_work:32147": {
         "header": "In Manhattan, downtown [N][Q] skip 49 St, 28 St, 23 St, 8 St-NYU and Prince St",
-        "services": "N, Q"
+        "services": "Q, N"
     },
     "lmm:planned_work:32146": {
         "header": "In Brooklyn, Manhattan-bound [D] skips 20 Av, 18 Av, 79 St and 71 St\nAll trains at Bay Pkwy board from the Coney Island-bound platform",
@@ -377,7 +377,7 @@
     },
     "lmm:planned_work:31948": {
         "header": "In Manhattan, uptown [4] local and [6] skip 51 St, 68 St, 77 St, 96 St, 103 St, 110 St and 116 St",
-        "services": "4, 6"
+        "services": "6, 4"
     },
     "lmm:planned_work:31947": {
         "header": "[2] runs every 30 minutes\nIn Upper Manhattan, all trains at 110 St-Malcolm X Plaza, 116 St, 125 St and 135 St board from the downtown platform",
@@ -409,7 +409,7 @@
     },
     "lmm:planned_work:31871": {
         "header": "In Queens, all Manhattan-bound [7][7X] local/express trains stop at 74 St-Broadway",
-        "services": "7, 7X"
+        "services": "7X, 7"
     },
     "lmm:planned_work:31846": {
         "header": "[2][3] run every 12 minutes",
@@ -697,7 +697,11 @@
     },
     "lmm:alert:543630": {
         "header": "All Queens express buses are running with delays in both directions due to road closures in Manhattan at the request of NYPD.",
-        "services": "QM31, QM12, QM68, QM8, QM64, QM25, QM40, QM44, QM34, QM1, QM32, QM6, QM63, QM35, QM10, QM5, QM24, QM20, QM2, QM11, QM36, QM4, QM42, QM7"
+        "services": "QM7, QM44, QM68, QM1, QM11, QM40, QM42, QM20, QM4, QM32, QM2, QM10, QM12, QM8, QM36, QM34, QM6, QM5, QM31, QM25, QM24, QM63, QM64, QM35"
+    },
+    "lmm:alert:543639": {
+        "header": "All Staten Island express buses are running with delays in both directions due to road closures in Manhattan at the request of NYPD.",
+        "services": "SIM1C, SIM3, SIM8, SIM11, SIM34, SIM15, SIM1, SIM2, SIM30, SIM33, SIM3C, SIM10, SIM26, SIM4, SIM32, SIM9, SIM23, SIM25, SIM7, SIM4C, SIM22, SIM35, SIM5, SIM24, SIM31, SIM33C, SIM6"
     },
     "lmm:planned_work:32504": {
         "header": "Southbound BxM10 stop on 5th Ave at E 85th St will be closed",
@@ -705,7 +709,7 @@
     },
     "lmm:planned_work:32503": {
         "header": "Southbound BxM3, BxM4, BxM6, BxM7, BxM8, BxM9, BxM11 stops on 5th Ave from E98th St to to E 85th St will be closed",
-        "services": "BXM4, BXM11, BXM3, BXM7, BXM8, BXM9, BXM6"
+        "services": "BXM11, BXM7, BXM8, BXM4, BXM6, BXM3, BXM9"
     },
     "lmm:planned_work:32502": {
         "header": "Southbound BxM2 stops on 5th Ave at E 98th St and E 81st will be closed",
@@ -913,7 +917,7 @@
     },
     "lmm:planned_work:31066": {
         "header": "Northbound M101, M102, and M103 stop on 3rd Ave at E 42nd St has been moved",
-        "services": "M103, M101, M102"
+        "services": "M101, M103, M102"
     },
     "lmm:planned_work:31064": {
         "header": "M15 stops on South St at Whitehall St will be bypassed, the first and last stops will be made on Water St at Whitehall St",
@@ -953,7 +957,7 @@
     },
     "lmm:planned_work:30414": {
         "header": "The northbound M15 and M15-SBS bus stops on Water St at Wall St and Pine St has been temporarily moved to the far side of Pine St",
-        "services": "M15, M15+"
+        "services": "M15+, M15"
     },
     "lmm:planned_work:30400": {
         "header": "Northbound M11 buses are bypassing the stop on Amsterdam Ave at W 62nd St, please use the temporary stop on Amsterdam Ave between W 61st St and W 62nd St",
@@ -981,7 +985,7 @@
     },
     "lmm:planned_work:29733": {
         "header": "Q4, Q5, Q84, Q85, Q86, Q87, Q89 and QM63 buses are running with delays due to utility work on Merrick Blvd between 110th Ave and Linden Blvd.",
-        "services": "Q84, Q5, Q4, Q85, Q89, QM63, Q87"
+        "services": "Q84, Q85, Q4, QM63, Q89, Q87, Q5"
     },
     "lmm:planned_work:29647": {
         "header": "Westbound M66 stop on E 67th St at Madison Ave will be bypassed, use the temporary stop on the far side of E 67th St at Madison Ave",
@@ -1021,7 +1025,7 @@
     },
     "lmm:planned_work:23569": {
         "header": "Staten Island-bound SIM5, SIM15 and SIM35 stop on State St at Bridge St is closed; use the temporary stop on State St closer to Bridge St instead",
-        "services": "SIM15, SIM35, SIM5"
+        "services": "SIM5, SIM15, SIM35"
     },
     "lmm:planned_work:23566": {
         "header": "Northbound M20 and M55 stop on State St at Bridge St is closed; use the temporary stop on State St before the intersection instead",
@@ -1049,15 +1053,15 @@
     },
     "lmm:planned_work:21840": {
         "header": "Southbound SIM6 and SIM11 buses are skipping the stop on Lexington Ave at E 45th St - use the temporary stop on Lexington Ave at E 43rd St instead",
-        "services": "SIM6, SIM11"
+        "services": "SIM11, SIM6"
     },
     "lmm:planned_work:21838": {
         "header": "Southbound SIM22 and SIM26 are skipping the stop on Lexington Ave at E 45th St - use stops on Lexington Ave at E 53rd St or E 42nd St at Madison Ave instead",
-        "services": "SIM22, SIM26"
+        "services": "SIM26, SIM22"
     },
     "lmm:planned_work:21837": {
         "header": "Southbound M101, M102 and M103 buses are skipping the stop on Lexington Ave at E 46th St; use the temporary stop on Lexington Ave at E 45th St instead",
-        "services": "M103, M101, M102"
+        "services": "M101, M103, M102"
     },
     "lmm:planned_work:18087": {
         "header": "Eastbound M79-SBS stop on W 81st St at Central Park West is temporarily closed; please use the nearby stop on W 81st St at Columbus Ave",
@@ -1073,7 +1077,7 @@
     },
     "lmm:planned_work:16452": {
         "header": "Southbound Q52-SBS and Q53-SBS stop on Cross Bay Blvd at Liberty Ave has been temporarily relocated down the block before 107th Ave",
-        "services": "Q52+, Q53+"
+        "services": "Q53+, Q52+"
     },
     "lmm:planned_work:16211": {
         "header": "Southbound BxM11 buses are detouring from E 177th St at Bronx River Parkway to Bruckner Blvd at Bruckner Expy - no stops will be missed",
@@ -1089,7 +1093,7 @@
     },
     "lmm:planned_work:9431": {
         "header": "Staten Island-bound SIM5, SIM15 and SIM35 stop on Water St at Hanover Sq is closed and buses make a temporary stop on Water St at Broad St instead",
-        "services": "SIM15, SIM35, SIM5"
+        "services": "SIM5, SIM15, SIM35"
     },
     "lmm:planned_work:32506": {
         "header": "Expect significant access restrictions at Penn Station today starting at 4pm. Seventh Avenue at 33rd and 34th streets will not be available.",
@@ -1113,7 +1117,7 @@
     },
     "lmm:planned_work:32336": {
         "header": "Some LIRR trains are running on revised schedules to allow for additional service to the US Open at Shinnecock Hills.",
-        "services": "4, 6, 12, 7, 9, 8, 3, 2, 10, 1"
+        "services": "2, 3, 6, 7, 4, 1, 12, 9, 10, 8"
     },
     "lmm:planned_work:32225": {
         "header": "No Hempstead Branch trains between Manhattan and Floral Park.",
@@ -1145,11 +1149,15 @@
     },
     "lmm:planned_work:32088": {
         "header": "Many early-morning LIRR trains run on revised schedules",
-        "services": "4, 12, 7, 10, 1"
+        "services": "7, 4, 1, 12, 10"
     },
     "lmm:planned_work:28365": {
         "header": "You must be in the first four cars to exit at Forest Hills in both directions",
         "services": "12"
+    },
+    "lmm:alert:543631": {
+        "header": "The 6:32pm train from Croton-Harmon to Grand Central is operating 10-15 minutes late at this time.",
+        "services": "MNR, 1"
     },
     "lmm:alert:543633": {
         "header": "The 6:35pm train from North White Plains to Grand Central is operating 10-15 minutes late following a request for police assistance at Mt Vernon West.",
@@ -1157,7 +1165,11 @@
     },
     "lmm:alert:543637": {
         "header": "The 6:07pm train from Grand Central to New Haven is operating 10-15 minutes late because of congestion resulting from operational issues.",
-        "services": "3, MNR"
+        "services": "MNR, 3"
+    },
+    "lmm:alert:543638": {
+        "header": "The 6:11pm train from Grand Central to Bridgeport is operating 10-15 minutes late because of congestion resulting from operational issues.",
+        "services": "MNR, 3"
     },
     "lmm:planned_work:32172": {
         "header": "The elevator leading to the tracks 2 and 4 platform at New Rochelle is closed for upgrade work.",
