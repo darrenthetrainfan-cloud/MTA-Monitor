@@ -1,7 +1,7 @@
 {
     "lmm:alert:550403": {
         "header": "[N][W] are running in two sections:\nAstoria-Ditmars Blvd and Queensboro Plaza\n.\n57 St/7 Av and Whitehall St/Stillwell Av.\nNo [N][W] between Manhattan and Queens.",
-        "services": "W, N, MTASBWY"
+        "services": "MTASBWY, N, W"
     },
     "lmm:alert:550404": {
         "header": "[N][W] are running in two sections:\nAstoria-Ditmars Blvd and Queensboro Plaza\n.\n57 St/7 Av and Whitehall St/Stillwell Av.\nNo [N][W] between Manhattan and Queens.",
@@ -33,7 +33,7 @@
     },
     "lmm:planned_work:32952": {
         "header": "Subways are running on a Saturday schedule",
-        "services": "J, L, N, F, A, 7, D, FS, M, R, E, C, 6, GS, G, H, 5, Q, 2, 3, 1, 4"
+        "services": "1, D, 2, J, N, 3, A, 7, Q, 5, M, C, G, FS, 6, H, 4, GS, E, L, R, F"
     },
     "lmm:planned_work:32951": {
         "header": "In Upper Manhattan, uptown [1] skips 103 St, 110 St, 116 St, 125 St and 137 St",
@@ -85,7 +85,7 @@
     },
     "lmm:planned_work:32828": {
         "header": "In Manhattan, uptown [N] and [Q] local skip 49 St",
-        "services": "Q, N"
+        "services": "N, Q"
     },
     "lmm:planned_work:32827": {
         "header": "In Manhattan, uptown [R] skips 49 St",
@@ -125,7 +125,7 @@
     },
     "lmm:planned_work:32808": {
         "header": "In the Bronx, Manhattan-bound [2][5] runs express from E 180 St to 3 Av-149 St\nAll trains at E 180 St board from the uptown platform",
-        "services": "2, 5"
+        "services": "5, 2"
     },
     "lmm:planned_work:32807": {
         "header": "In the Bronx, no [2] at Wakefield-241 St",
@@ -653,7 +653,7 @@
     },
     "lmm:alert:550294": {
         "header": "You may wait longer for these buses:\nX27, X28, X37, X38",
-        "services": "X37, X38, X27, X28"
+        "services": "X28, X37, X38, X27"
     },
     "lmm:alert:550399": {
         "header": "Q39 buses are detoured in both directions due to roadwork on 48th Ave between 42nd St and 43rd St.",
@@ -665,7 +665,7 @@
     },
     "lmm:planned_work:33063": {
         "header": "Northbound M1, M2 and M3 will be detoured from Park Avenue South at E 23rd St to E 42nd St at Madison Ave",
-        "services": "M3, M1, M2"
+        "services": "M2, M3, M1"
     },
     "lmm:planned_work:33061": {
         "header": "No Q32 service between W 37th St at 5th Ave and W 32nd St at Broadway",
@@ -697,7 +697,7 @@
     },
     "lmm:planned_work:33051": {
         "header": "Southbound M101, M102 and M103 stops on Lexington Ave from E 56th St to E 45th St",
-        "services": "M102, M101, M103"
+        "services": "M102, M103, M101"
     },
     "lmm:planned_work:33048": {
         "header": "No B25 service between Water St at Main St and Cadman Plaza West at Clark St",
@@ -737,7 +737,7 @@
     },
     "lmm:planned_work:33020": {
         "header": "Bus service will run on a Saturday schedule",
-        "services": "BX39, QM31, S76, X28, S66, Q54, BX92, SIM3, M125, B12, Q53+, BX24, QM44, B2, Q27, QM15, BX15, Q49, SIM1C, B82+, BX10, S89, B31, S55, B37, Q1, Q06, Q4, B6, M22, S86, Q43, BX6, Q56, S84, BX18B, Q64, M4, Q32, B65, BXM7, B32, B13, S62, Q22, Q102, QM17, Q36, Q55, SIM5, Q29, BX25, Q16, BX16, Q76, S51, M102, QM32, Q2, B16, Q111, BX33, SIM1, Q48, B17, B54, Q28, S74, BX3, B3, B61, M34+, S79+, B64, Q31, BX29, Q104, M3, QM25, QM7, B24, QM35, BX12+, M15, Q24, M35, Q23, BX46, M15+, M7, Q45, B14, Q59, BX95, M106, B45, S48, BX40, QM64, BX8, Q110, SIM11, BX35, M72, M98, B38, Q5, BX11, SIM32, QM1, QM68, B42, BX32, BX31, Q70+, Q19, M103, BXM10, Q47, B43, M9, BM2, Q11, B67, Q13, X37, SIM2, Q65, Q35, Q25, Q08, Q83, B44, M1, Q38, B84, SIM31, S56, S98, B63, S81, M31, B7, B20, Q51, BX19, SIM34, SIM10, B11, M86+, S78, BXM1, Q52+, Q58, S53, B36, Q61, SIM33, X38, B74, M14D+, M34A+, M60+, M14A+, Q103, SIM15, Q15, S52, BX36, QM21, B39, B49, Q10, BX21, SIM8, QM40, BX12, SIM4C, Q66, Q20, BX28, Q113, B26, BX17, M100, B4, QM65, SIM35, BXM6, X27, S91, Q40, Q88, Q3, QM34, S94, Q115, BX13, Q86, BX1, BX9, Q46, Q41, B46+, Q26, SIM3C, Q100, Q74, B69, B68, S44, SIM23, B41, S90, BXM18, Q42, QM2, QM42, Q33, S59, Q07, M5, QM18, BXM9, BX5, M66, S46, B48, M50, B35, BM4, BX23, QM6, SIM24, BX34, Q112, M104, BX41+, M79+, B60, BXM2, BM1, SIM9, Q60, Q17, B83, BX30, Q75, QM4, BX22, M23+, QM5, SIM4, BX18A, M11, M12, B44+, Q72, SIM26, Q87, S92, Q39, Q44+, BX4A, SIM25, QM63, B47, S42, B25, BX20, Q67, BX7, BXM8, Q12, B70, Q09, S61, BX2, Q85, Q77, B57, Q114, QM36, SIM22, B1, M8, M96, Q82, QM10, Q37, B62, SIM33C, S93, M2, B15, Q101, Q18, Q84, Q63, B100, S54, BM3, BM5, BX27, BX42, M55, M10, QM16, B9, SIM7, BXM3, BX6+, QM11, M42, S40, S96, BXM11, M101, M21, QM8, QM20, QM12, BX26, B82, SIM30, Q69, Q14, M57, Q50, SIM6, B8, BX41, Q30, BX38, B103, B46, B52, Q90, QM24, BXM4, BX4, M116, M20, S57"
+        "services": "BX13, BX1, Q25, BX12+, SIM10, QM2, SIM9, M106, SIM7, BX3, BX28, S74, B47, BX23, BX36, M57, BX46, M15+, BX7, QM16, Q46, BX5, M11, BX20, B69, BX34, B37, B39, M14A+, S89, Q48, Q24, SIM5, BX2, SIM33, Q61, Q26, Q69, Q39, Q2, SIM25, M10, S98, SIM4C, B16, M42, B42, Q53+, M12, SIM31, M21, Q3, Q06, QM32, SIM30, B11, BX11, BM2, BX18B, M100, SIM6, B9, M66, Q90, Q85, QM63, S92, B74, B13, B31, B45, BX19, Q12, Q19, S81, B26, SIM3C, M55, S54, B1, B36, Q104, BM1, B82, S84, BX33, QM5, BX6+, QM34, QM15, BX22, Q82, B17, M34+, Q64, B8, BX41, Q66, QM44, BX17, QM1, X38, Q101, M5, SIM2, Q67, Q35, Q110, Q33, Q74, BX24, Q72, B64, M102, QM42, BX9, Q29, M31, B103, X27, M103, M8, Q16, M34A+, B65, Q114, QM12, QM4, SIM4, B41, QM20, BXM3, B48, B60, Q60, Q1, Q43, Q112, QM11, S56, M20, QM21, B83, Q45, B20, B63, QM10, QM6, QM17, BX92, Q56, Q50, Q44+, B57, S76, QM31, B6, S40, S55, BXM2, S94, Q5, B38, SIM22, Q41, M7, BX27, BXM8, QM40, Q4, QM25, BX6, S79+, QM8, M50, BX16, Q36, Q23, Q65, Q52+, BX8, M101, B15, B49, SIM3, Q63, M86+, BX31, Q103, Q77, S42, S53, Q22, QM24, S44, BM3, Q14, S59, B84, BX18A, Q42, X37, QM18, BX21, BX4, B3, Q07, S91, Q58, Q75, Q08, B12, M104, M14D+, BXM6, QM64, B68, Q51, BX35, QM35, Q55, Q31, Q70+, SIM34, SIM33C, Q28, BX41+, S51, M15, Q40, S62, BX26, Q32, Q115, M3, B44, Q20, Q38, Q76, SIM15, Q18, SIM11, Q87, S96, M4, B82+, BXM4, QM65, SIM1, B67, B54, S48, BX95, SIM24, B4, BXM11, B52, B32, Q84, BX38, B25, Q17, BM4, Q83, Q102, S46, B2, BX30, M125, Q09, B62, Q86, S61, M35, Q111, S52, B14, S90, B46, B46+, S86, Q49, Q27, Q13, Q11, SIM26, B61, Q100, SIM1C, BX15, M98, M9, S78, BXM10, Q113, Q47, B43, M1, BX12, Q54, SIM23, BXM18, S66, S57, Q88, B44+, BX29, SIM8, B100, Q15, Q37, M23+, B24, BX39, BX32, M96, M116, SIM32, QM7, M72, M22, QM36, BX40, Q30, M60+, X28, BX42, M79+, BX10, Q10, BXM9, B7, SIM35, BXM7, BX4A, QM68, B70, M2, BX25, Q59, BXM1, BM5, S93, B35"
     },
     "lmm:planned_work:33013": {
         "header": "M20 may stop at Varick St/Clarkson St and Varick St/Watts St at bus operator's discretion",
@@ -745,7 +745,7 @@
     },
     "lmm:planned_work:33012": {
         "header": "Southbound SIM4C and SIM8 will have extra early getaway service for the holiday",
-        "services": "SIM8, SIM4C"
+        "services": "SIM4C, SIM8"
     },
     "lmm:planned_work:33011": {
         "header": "Southbound SIM2 will have extra early getaway service for the holiday",
@@ -753,7 +753,7 @@
     },
     "lmm:planned_work:33010": {
         "header": "Southbound SIM1C, SIM3C and SIM33C will have extra early getaway service for the holiday",
-        "services": "SIM3C, SIM33C, SIM1C"
+        "services": "SIM1C, SIM33C, SIM3C"
     },
     "lmm:planned_work:33009": {
         "header": "M125 buses will be detoured between W 125th St at Amsterdam Ave and W 125th St at Saint Clair Pl",
@@ -761,7 +761,7 @@
     },
     "lmm:planned_work:32939": {
         "header": "B82, B68, B74, B64, and X28 buses may experience delays in the Coney Island area",
-        "services": "B68, B82, X28, B74, B64"
+        "services": "B64, B68, X28, B82, B74"
     },
     "lmm:planned_work:32938": {
         "header": "B9 and B63 buses may experience delays in the Sunset Park area",
@@ -817,7 +817,7 @@
     },
     "lmm:planned_work:32696": {
         "header": "Southbound SIM23/SIM24 service will be detoured between E 59th St/Park Ave, the temporary first stop, and E 34th St/5th Ave",
-        "services": "SIM24, SIM23"
+        "services": "SIM23, SIM24"
     },
     "lmm:planned_work:32694": {
         "header": "Southbound SIM10 service will be detoured between E 57th St/7th Ave and E 42nd St/5th Ave",
@@ -829,15 +829,15 @@
     },
     "lmm:planned_work:32690": {
         "header": "Southbound SIM1C/SIM3/SIM3C/SIM4C/SIM30/SIM33C service will be detoured between E 57th St/7th Ave and E 42nd St/5th Ave",
-        "services": "SIM4C, SIM3C, SIM3, SIM1C, SIM30, SIM33C"
+        "services": "SIM3, SIM1C, SIM4C, SIM30, SIM3C, SIM33C"
     },
     "lmm:planned_work:32638": {
         "header": "Southbound X27/X28/X37 X38 service will be detoured between E 57th St/Madison Ave and E 42nd St/5th Ave",
-        "services": "X37, X38, X27, X28"
+        "services": "X28, X37, X38, X27"
     },
     "lmm:planned_work:32636": {
         "header": "Southbound BM1/BM2/BM3/BM4/BM5 service will be detoured between E 57th St and Lexington Ave and E 42nd St and 5th Ave",
-        "services": "BM2, BM1, BM3, BM4, BM5"
+        "services": "BM4, BM3, BM1, BM5, BM2"
     },
     "lmm:planned_work:32635": {
         "header": "Northbound BxM2 stop at Central Park South/7th Ave will be relocated to Central Park South/6th Ave",
@@ -845,7 +845,7 @@
     },
     "lmm:planned_work:32633": {
         "header": "Southbound BxM3/BxM4/BxM6/BxM7/BxM8/BxM9/BxM10/BxM11 service will be detoured between 5th Ave and 72nd St and 5th Av and 42nd St",
-        "services": "BXM8, BXM3, BXM4, BXM11, BXM6, BXM10, BXM7, BXM9"
+        "services": "BXM7, BXM4, BXM8, BXM6, BXM3, BXM9, BXM10, BXM11"
     },
     "lmm:planned_work:32597": {
         "header": "Westbound M50 stops at E 49th St/3rd Ave and E 49th St/Lexington Ave will be closed",
@@ -861,7 +861,7 @@
     },
     "lmm:planned_work:32591": {
         "header": "M5/M7/M10/M20/M104 stop at Columbus Circle/8th Ave will be closed",
-        "services": "M5, M7, M10, M20, M104"
+        "services": "M104, M20, M10, M7, M5"
     },
     "lmm:planned_work:32589": {
         "header": "M55 stops at 6th Ave/W 42nd St and W 44th St/6th Ave will be closed",
@@ -977,7 +977,7 @@
     },
     "lmm:planned_work:31584": {
         "header": "Southbound B41 and B67 stop at Flatbush Ave/Atlantic Ave is closed\nBoard southbound B41 and B67 at Flatbush Ave/State St",
-        "services": "B41, B67"
+        "services": "B67, B41"
     },
     "lmm:planned_work:31494": {
         "header": "QM65 buses are not stopping at Trinity Pl/Morris St in either direction due to construction",
@@ -1045,7 +1045,7 @@
     },
     "lmm:planned_work:31066": {
         "header": "Northbound M101, M102, and M103 stop on 3rd Ave at E 42nd St has been moved",
-        "services": "M102, M101, M103"
+        "services": "M102, M103, M101"
     },
     "lmm:planned_work:31064": {
         "header": "M15 stops on South St at Whitehall St will be bypassed, the first and last stops will be made on Whitehall St at Water St",
@@ -1061,7 +1061,7 @@
     },
     "lmm:planned_work:31055": {
         "header": "Southbound M7 and M20 stop on 7th Ave at W 28th St will be bypassed, use the stop on 7th Ave at W 24th St",
-        "services": "M7, M20"
+        "services": "M20, M7"
     },
     "lmm:planned_work:30899": {
         "header": "Northbound Q61 stop on Linden Pl at 35th Ave is closed, use the temporary stop on Linden Pl at Northern Blvd",
@@ -1081,7 +1081,7 @@
     },
     "lmm:planned_work:30414": {
         "header": "The northbound M15 and M15-SBS bus stops on Water St at Wall St and Pine St has been temporarily moved to the far side of Pine St",
-        "services": "M15+, M15"
+        "services": "M15, M15+"
     },
     "lmm:planned_work:30400": {
         "header": "Northbound M11 buses are bypassing the stop on Amsterdam Ave at W 62nd St, please use the temporary stop on Amsterdam Ave between W 61st St and W 62nd St",
@@ -1105,7 +1105,7 @@
     },
     "lmm:planned_work:29764": {
         "header": "Northbound BxM3 and BxM4 stop on Madison Ave at E 46th St is closed, please use the M3 bus stop on Madison Ave at E 45th St instead",
-        "services": "BXM4, BXM3"
+        "services": "BXM3, BXM4"
     },
     "lmm:planned_work:29647": {
         "header": "Westbound M66 stop on E 67th St at Madison Ave will be bypassed, use the temporary stop on the far side of E 67th St at Madison Ave",
@@ -1125,7 +1125,7 @@
     },
     "lmm:planned_work:26875": {
         "header": "SIM4X/SIM8X trips will be discontinued, more trips coming to SIM4/SIM8",
-        "services": "SIM8, SIM4"
+        "services": "SIM4, SIM8"
     },
     "lmm:planned_work:26507": {
         "header": "Maspeth-bound Q38 stop on 63rd Dr at Austin St has been temporarily relocated north between Wetherole St and Austin St",
@@ -1145,11 +1145,11 @@
     },
     "lmm:planned_work:23569": {
         "header": "Staten Island-bound SIM5, SIM15 and SIM35 stop on State St at Bridge St is closed; use the temporary stop on State St closer to Bridge St instead",
-        "services": "SIM35, SIM5, SIM15"
+        "services": "SIM15, SIM35, SIM5"
     },
     "lmm:planned_work:23566": {
         "header": "Northbound M20 and M55 stop on State St at Bridge St is closed; use the temporary stop on State St before the intersection instead",
-        "services": "M20, M55"
+        "services": "M55, M20"
     },
     "lmm:planned_work:23011": {
         "header": "Westbound B65 stop on Smith St at Atlantic Ave is closed. Please use the stop on Smith St at Livingston St",
@@ -1181,7 +1181,7 @@
     },
     "lmm:planned_work:21837": {
         "header": "Southbound M101, M102 and M103 buses are skipping the stop on Lexington Ave at E 46th St; use the temporary stop on Lexington Ave at E 45th St instead",
-        "services": "M102, M101, M103"
+        "services": "M102, M103, M101"
     },
     "lmm:planned_work:18087": {
         "header": "Eastbound M79-SBS stop on W 81st St at Central Park West is temporarily closed; please use the nearby stop on W 81st St at Columbus Ave",
@@ -1197,7 +1197,7 @@
     },
     "lmm:planned_work:16452": {
         "header": "Southbound Q52-SBS and Q53-SBS stop on Cross Bay Blvd at Liberty Ave has been temporarily relocated down the block before 107th Ave",
-        "services": "Q52+, Q53+"
+        "services": "Q53+, Q52+"
     },
     "lmm:planned_work:16211": {
         "header": "Southbound BxM11 buses are detouring from E 177th St at Bronx River Parkway to Bruckner Blvd at Bruckner Expy - no stops will be missed",
@@ -1213,7 +1213,7 @@
     },
     "lmm:planned_work:9431": {
         "header": "Staten Island-bound SIM5, SIM15 and SIM35 stop on Water St at Hanover Sq is closed and buses make a temporary stop on Water St at Broad St instead",
-        "services": "SIM35, SIM5, SIM15"
+        "services": "SIM15, SIM35, SIM5"
     },
     "lmm:alert:550417": {
         "header": "Diesel service along the Greenport Branch is canceled for the remainder of the day due to trouble with the diesel equipment.",
@@ -1221,7 +1221,7 @@
     },
     "lmm:alert:550434": {
         "header": "The 2:45pm train from Montauk to Jamaica is operating 10-15 minutes late at this time.",
-        "services": "LI, 5"
+        "services": "5, LI"
     },
     "lmm:planned_work:33016": {
         "header": "Westbound trains skip Elmont-UBS Arena, Queens Village, and Hollis",
@@ -1241,7 +1241,7 @@
     },
     "lmm:planned_work:32924": {
         "header": "LIRR trains run on a weekday schedule with regular fares in effect",
-        "services": "8, 3, 1, 5, 13, 7, 6, 4, 10, 9, 2, 12"
+        "services": "5, 1, 8, 2, 13, 6, 10, 3, 12, 4, 7, 9"
     },
     "lmm:planned_work:32776": {
         "header": "Penn Station Access Restrictions on World Cup Match Days",
@@ -1253,7 +1253,7 @@
     },
     "lmm:planned_work:32737": {
         "header": "Eastbound trains skip Hollis, Queens Village, and Elmont-UBS Arena",
-        "services": "2, 10, 4"
+        "services": "4, 10, 2"
     },
     "lmm:planned_work:32736": {
         "header": "No Hempstead Branch trains between Manhattan and Floral Park",
@@ -1261,7 +1261,7 @@
     },
     "lmm:planned_work:32735": {
         "header": "Many early-morning LIRR trains run on revised schedules",
-        "services": "1, 7, 4, 10, 12"
+        "services": "1, 10, 12, 4, 7"
     },
     "lmm:planned_work:32605": {
         "header": "No westbound service at Kew Gardens and Forest Hills; westbound trains from Jamaica bypass Woodside",
@@ -1301,7 +1301,7 @@
     },
     "lmm:planned_work:32748": {
         "header": "The Hudson, Harlem, and New Haven Lines run on a Sunday schedule on July 3",
-        "services": "wassaic, 3, 1, 5, 6, 4, 2"
+        "services": "5, 1, 2, 6, 3, wassaic, 4"
     },
     "lmm:planned_work:32747": {
         "header": "New Haven Line trains run on a Friday schedule with extra early-afternoon service",
