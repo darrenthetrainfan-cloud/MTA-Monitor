@@ -1,15 +1,11 @@
 {
     "lmm:alert:267145:26": {
         "header": "[A][D] trains are running with delays in both directions while we perform track maintenance along the line in Manhattan.",
-        "services": "A, D"
+        "services": "D, A"
     },
-    "lmm:alert:267187:26": {
-        "header": "Woodlawn-bound [4] trains are delayed while FDNY responds to a track fire near 167 St.",
-        "services": "4"
-    },
-    "lmm:alert:267188:26": {
-        "header": "Uptown [6] trains are running with delays after we requested NYPD for someone being disruptive on a train at Bleecker St.",
-        "services": "6"
+    "lmm:alert:267192:29": {
+        "header": "Downtown [4][6] trains are bypassing Spring St after emergency teams responded to a person who was struck by a train at that station.",
+        "services": "4, 6"
     },
     "lmm:planned_work:34644": {
         "header": "Flushing-bound [7] service has been restored at 103 St-Corona Plaza",
@@ -309,7 +305,7 @@
     },
     "lmm:planned_work:34194": {
         "header": "In Manhattan, downtown [N] and [Q] local skip 49 St",
-        "services": "N, Q"
+        "services": "Q, N"
     },
     "lmm:planned_work:34192": {
         "header": "In Manhattan, downtown [R] skips 49 St",
@@ -421,7 +417,7 @@
     },
     "lmm:planned_work:34054": {
         "header": "In Brooklyn, Manhattan-bound [J][M] skips Flushing Av, Lorimer St and Hewes St\nAll trains at Myrtle Av board from the Jamaica Center/Metropolitan Av-bound platform",
-        "services": "M, J"
+        "services": "J, M"
     },
     "lmm:planned_work:34053": {
         "header": "[M] runs between Middle Village-Metropolitan Av and Delancey St-Essex St",
@@ -677,7 +673,7 @@
     },
     "lmm:planned_work:31871": {
         "header": "In Queens, all Manhattan-bound [7][7X] local/express trains stop at 74 St-Broadway",
-        "services": "7X, 7"
+        "services": "7, 7X"
     },
     "lmm:planned_work:31498": {
         "header": "In Queens, Flushing-bound [7] skips 52 St and 69 St\nAll trains at Woodside-61 St board from the Manhattan-bound platform",
@@ -706,10 +702,6 @@
     "lmm:planned_work:29070": {
         "header": "In Manhattan, all [L] trains at 3 Av and 1 Av board from the 8 Av-bound platform",
         "services": "L"
-    },
-    "lmm:alert:267120:26": {
-        "header": "Northbound Q52-SBS and Q53-SBS buses are no longer detoured after a parade at Cross Bay Blvd/157th Ave ended.",
-        "services": "Q53+, Q52+"
     },
     "lmm:alert:267125:31": {
         "header": "Northbound BxM2 buses are detoured due to the Columbus Circle Fair on Broadway from West 60th St to West 61st St.",
@@ -853,7 +845,7 @@
     },
     "lmm:planned_work:34645": {
         "header": "B35, B35-LTD, B44, B44-SBS and B49 buses may experience delays in the Flatbush area and will wait out any temporary closures",
-        "services": "B49, B44, B35, B44+"
+        "services": "B49, B44+, B44, B35"
     },
     "lmm:planned_work:34643": {
         "header": "B25 and B26 buses may experience delays on Fulton St from Clinton Ave to Washington Ave and will wait out any temporary closures",
@@ -885,7 +877,7 @@
     },
     "lmm:planned_work:34635": {
         "header": "B25, B26, B38,B41 and B52 buses may experience delays on Tillary St from Cadman Plaza West to Adam St and will wait out any temporary closures",
-        "services": "B38, B25, B26, B52, B41"
+        "services": "B26, B52, B41, B25, B38"
     },
     "lmm:planned_work:34633": {
         "header": "Southbound M14D-SBS stops on 9th Ave at W 18th St, and on W 14th St at Hudson St and 8th Ave will be closed",
@@ -985,7 +977,7 @@
     },
     "lmm:planned_work:34573": {
         "header": "Q58 and Q98 buses are detoured in both directions due to a street fair on Fresh Pond Rd between Woodbine St and Menahan St.",
-        "services": "Q58, Q98"
+        "services": "Q98, Q58"
     },
     "lmm:planned_work:34553": {
         "header": "QM24, QM25, QM34 buses are detoured in both directions due to the Fresh Pond Rd Street Fair.",
@@ -993,7 +985,7 @@
     },
     "lmm:planned_work:34520": {
         "header": "Westbound QM2 and QM20 will be detoured between 138th St and Linden Pl",
-        "services": "QM20, QM2"
+        "services": "QM2, QM20"
     },
     "lmm:planned_work:34519": {
         "header": "B63 buses will be detoured from 5th Ave between 9th St and Union St",
@@ -1053,7 +1045,7 @@
     },
     "lmm:planned_work:34119": {
         "header": "Southbound M11 and eastbound M34A-SBS stop at 9th Ave/W 40th St is closed",
-        "services": "M34A+, M11"
+        "services": "M11, M34A+"
     },
     "lmm:planned_work:34056": {
         "header": "Eastbound Q83 stop on 150th St at Jamaica Ave will be closed",
@@ -1109,7 +1101,7 @@
     },
     "lmm:planned_work:33309": {
         "header": "QM31, QM32, QM34, QM35, QM36, QM40, QM42 and QM44 buses are bypassing the stop at 3rd Ave/E 50 St.  \nUse temporary stop on 3rd Ave between E 48 St and E 49 St",
-        "services": "QM35, QM36, QM44, QM34, QM32, QM31, QM40, QM42"
+        "services": "QM31, QM34, QM36, QM32, QM35, QM40, QM44, QM42"
     },
     "lmm:planned_work:33214": {
         "header": "B25 buses to and from DUMBO will be rerouted to/from Front St/Dock St",
@@ -1121,7 +1113,7 @@
     },
     "lmm:planned_work:33098": {
         "header": "B62, Q66, and Q69 stops on 21st St at 35th Ave are closed in both directions",
-        "services": "Q66, Q69, B62"
+        "services": "Q69, B62, Q66"
     },
     "lmm:planned_work:33022": {
         "header": "M11 buses will be detoured from Amsterdam Ave between W 106th St and W 120th St",
@@ -1157,7 +1149,7 @@
     },
     "lmm:planned_work:32050": {
         "header": "Eastbound QM2 and QM20 buses are detoured because of construction along Madison Ave from E 58th St to E 59th St.",
-        "services": "QM20, QM2"
+        "services": "QM2, QM20"
     },
     "lmm:planned_work:31775": {
         "header": "B69 buses will be detoured between 7th Ave at Park Pl and Vanderbilt Pl at Sterling Pl",
@@ -1169,7 +1161,7 @@
     },
     "lmm:planned_work:31658": {
         "header": "Northbound M3 and M4 stop on Madison Ave at E 45th St will be bypassed, use the stops on Madison Ave at E 42nd St or E 47th St",
-        "services": "M4, M3"
+        "services": "M3, M4"
     },
     "lmm:planned_work:31647": {
         "header": "Eastbound M35 stops on E 124th St at 3rd Ave and 2nd Ave are closed.",
@@ -1293,7 +1285,7 @@
     },
     "lmm:planned_work:23566": {
         "header": "Northbound M20 and M55 stop on State St at Bridge St is closed; use the temporary stop on State St before the intersection instead",
-        "services": "M55, M20"
+        "services": "M20, M55"
     },
     "lmm:planned_work:23011": {
         "header": "Westbound B65 stop on Smith St at Atlantic Ave is closed. Please use the stop on Smith St at Livingston St",
@@ -1309,7 +1301,7 @@
     },
     "lmm:planned_work:22245": {
         "header": "X28  and X38  stops on Surf Ave at W 21st St are closed in both directions",
-        "services": "X38, X28"
+        "services": "X28, X38"
     },
     "lmm:planned_work:21840": {
         "header": "Southbound SIM6 and SIM11 buses are skipping the stop on Lexington Ave at E 45th St - use the temporary stop on Lexington Ave at E 43rd St instead",
@@ -1317,7 +1309,7 @@
     },
     "lmm:planned_work:21838": {
         "header": "Southbound SIM22 and SIM26 are skipping the stop on Lexington Ave at E 45th St - use stops on Lexington Ave at E 53rd St or E 42nd St at Madison Ave instead",
-        "services": "SIM26, SIM22"
+        "services": "SIM22, SIM26"
     },
     "lmm:planned_work:21837": {
         "header": "Southbound M101, M102 and M103 buses are skipping the stop on Lexington Ave at E 46th St; use the temporary stop on Lexington Ave at E 45th St instead",
@@ -1389,7 +1381,7 @@
     },
     "lmm:planned_work:34456": {
         "header": "Some trains make added stops at Elmont-UBS Arena for racing attendees",
-        "services": "4, 10"
+        "services": "10, 4"
     },
     "lmm:planned_work:34395": {
         "header": "Buses replace trains between Central Islip and Ronkonkoma, with service between Farmingdale and Central Islip reduced to hourly",
